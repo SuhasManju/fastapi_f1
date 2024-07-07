@@ -1,7 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI,APIRouter
+from dashboard.dashboard import dashbboard
 
-app=FastAPI(debug=False)
+app=FastAPI()
+app_router=APIRouter()
 
-@app.get("/")
-def main_call():
-    return {"message":"main app"}
+app_router.include_router(dashbboard)
+
+app.include_router(app_router)
