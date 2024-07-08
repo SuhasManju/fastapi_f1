@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter,HTTPException
 from database import sessionLocal
 from model import *
 from .schema import *
@@ -71,6 +71,34 @@ def retrive_detailed_round(year:int,round:int):
         circuit_image=convert_img_base64(f"circuit_images/{circuit_result.circuitId}.svg.png")
     )
     
-    
+@dashbboard.post('/round/result')
+def retrive_round_result(data:RaceResultIn):
+    db=sessionLocal()    
+    result=db.query(Race).filter(Race.round==data.round,Race.year==data.year).first()
+    race_result=db.query(Result).filter(Result.raceId==result.raceId).order_by(Result.position).all()
+    output=[]
+    if not race_result:
+        raise HTTPException(status_code=404,detail="Race has not happened yet")
+    for r in race_result:
+        driver_result=db.query(Driver).filter(Driver.driverId==r.driverId).first()
+        construct_result=db.query(Constructor).filter(Constructor.constructorId==r.constructorId).first()
+        if r.position==1:
+            time=None
+        else:
+            if not r.time:
+                time=retrive_status(db,r.statusId)
+            else:
+                time=str(r.time)
+        output.append(RaceResultOut(
+            driver_name=retrive_name(driver_result.forename,driver_result.surname),
+            driver_short_code=driver_result.driverRef,
+            constructor_name=construct_result.name,
+            constructor_short_code=construct_result.constructorRef,
+            driver_number=r.number,
+            points=r.points,
+            time=time 
+
+        ))
+    return output
 
     

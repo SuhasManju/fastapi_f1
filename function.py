@@ -2,6 +2,7 @@ import base64
 import mimetypes
 import os
 from datetime import datetime
+from model import *
 
 def convert_img_base64(file_name:str):
     if not os.path.exists(file_name):
@@ -28,4 +29,12 @@ def create_datetime(date_str, time_str):
         return datetime.strptime(datetime_str, datetime_format)
     except ValueError as e:
         raise ValueError(f"Error parsing date and time: {e}")
+    
+def retrive_name(first_name,last_name):
+    if last_name:
+        first_name+=" "+last_name
+    return first_name
+
+def retrive_status(db,statusId):
+    return db.query(Status.status).filter(Status.statusId==statusId).first()[0]
 

@@ -19,3 +19,16 @@ class RaceDetailsOut(BaseModel):
     sprint_quali_timings:Optional[str]=None
     sprint_race_timings:Optional[str]=None
     circuit_image:str
+
+class RaceResultIn(BaseModel):
+    year:int
+    round:int
+
+class RaceResultOut(BaseModel):
+    driver_name:str
+    driver_short_code:str
+    constructor_name:str
+    constructor_short_code:str
+    driver_number:int
+    points:int
+    time:Optional[str]=None
