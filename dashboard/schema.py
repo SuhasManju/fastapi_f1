@@ -32,3 +32,13 @@ class RaceResultOut(BaseModel):
     driver_number:int
     points:int
     time:Optional[str]=None
+
+class QualiResultOut(BaseModel):
+    driver_name:str
+    driver_short_code:str
+    constructor_name:str
+    constructor_short_code:str
+    driver_number:int
+    q1:Optional[str]=None
+    q2:Optional[str]=None
+    q3:Optional[str]=None

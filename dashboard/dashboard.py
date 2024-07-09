@@ -17,6 +17,7 @@ def retrive_year():
 def retrive_driver_standing(year:str):
     db=sessionLocal()
 
+
 @dashbboard.get('/round')
 def retrive_round(year:str):
     db=sessionLocal()
@@ -101,4 +102,55 @@ def retrive_round_result(data:RaceResultIn):
         ))
     return output
 
+@dashbboard.post('/round/sprint_result')
+def retive_sprint_result(data:RaceResultIn):
+    db=sessionLocal()
+    output=[]
+    result=db.query(Race).filter(Race.round==data.round,Race.year==data.year).first()
+    if not result.sprint_date:
+        raise HTTPException(status_code=400,detail="This Race is not a sprint race")
+    race_result=db.query(Sprintresult).filter(Sprintresult.raceId==result.raceId).order_by(Sprintresult.position).all()
+    for r in race_result:
+        driver_result=db.query(Driver).filter(Driver.driverId==r.driverId).first()
+        construct_result=db.query(Constructor).filter(Constructor.constructorId==r.constructorId).first()
+        if r.position==1:
+            time=None
+        else:
+            if not r.time:
+                time=retrive_status(db,r.statusId)
+            else:
+                time=str(r.time)
+        output.append(RaceResultOut(
+            driver_name=retrive_name(driver_result.forename,driver_result.surname),
+            driver_short_code=driver_result.driverRef,
+            constructor_name=construct_result.name,
+            constructor_short_code=construct_result.constructorRef,
+            driver_number=r.number,
+            points=r.points,
+            time=time 
+
+        ))
+    return output
+
+
+@dashbboard.post('/round/quali_result')
+def retrive_quali_result(data:RaceResultIn):
+    db=sessionLocal()
+    output=[]
+    result=db.query(Race).filter(Race.round==data.round,Race.year==data.year).first()
+    quali_result=db.query(Qualifying).filter(Qualifying.raceId==result.raceId).order_by(Qualifying.position).all()
+    for r in quali_result:
+        driver_result=db.query(Driver).filter(Driver.driverId==r.driverId).first()
+        construct_result=db.query(Constructor).filter(Constructor.constructorId==r.constructorId).first()
+        output.append(QualiResultOut(
+            driver_name=retrive_name(driver_result.forename,driver_result.surname),
+            driver_short_code=driver_result.driverRef,
+            constructor_name=construct_result.name,
+            constructor_short_code=construct_result.constructorRef,
+            driver_number=r.number,
+            q1=r.q1,
+            q2=r.q2,
+            q3=r.q3
+        ))
+    return output
     
