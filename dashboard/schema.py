@@ -31,6 +31,7 @@ class RaceResultOut(BaseModel):
     constructor_id:str
     driver_number:int
     points:Optional[int]=None
+    position_number:Optional[int]=None
     gap:Optional[str]=None
     interval:Optional[str]=None
     retired:Optional[str]=None
@@ -44,6 +45,7 @@ class QualiResultOut(BaseModel):
     q1:Optional[str]=None
     q2:Optional[str]=None
     q3:Optional[str]=None
+    position_number:Optional[int]=None
 
 class PracticeResultOut(BaseModel):
     driver_name:str
@@ -56,3 +58,4 @@ class PracticeResultOut(BaseModel):
     interval:Optional[str]=None
     retired:Optional[str]=None
     laps:int
+    position_number:Optional[int]=None

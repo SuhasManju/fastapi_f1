@@ -94,7 +94,8 @@ def retrive_round_result(data:RaceResultIn):
             points=race_data['points'],
             gap=race_data['gap'],
             interval=race_data['interval'],
-            retired=race_data['reason_retired']
+            retired=race_data['reason_retired'],
+            position_number=race_data['position_number']
         ))
     return output
 
@@ -122,7 +123,8 @@ def retive_sprint_result(data:RaceResultIn):
             points=race_data['points'],
             gap=race_data['gap'],
             interval=race_data['interval'],
-            retired=race_data['reason_retired']
+            retired=race_data['reason_retired'],
+            position_number=race_data['position_number']
         ))
     return output
 
@@ -149,6 +151,7 @@ def retrive_quali_result(data:RaceResultIn):
             q1=race_data['q1'],
             q2=race_data['q2'],
             q3=race_data['q3'],
+            position_number=race_data['position_number']
         ))
     return output
 
@@ -174,6 +177,7 @@ def retrive_sprint_quali_result(data:RaceResultIn):
             q1=race_data['q1'],
             q2=race_data['q2'],
             q3=race_data['q3'],
+            position_number=race_data['position_number']
         ))
     return output
     
@@ -200,6 +204,7 @@ def retive_sprint_result(data:RaceResultIn):
             interval=race_data['interval'],
             laps=race_data['laps'],
             time=str(race_data['time']),
+            position_number=race_data['position_number']
         ))
     return output
 
@@ -226,6 +231,7 @@ def retive_sprint_result(data:RaceResultIn):
             interval=race_data['interval'],
             laps=race_data['laps'],
             time=str(race_data['time']),
+            position_number=race_data['position_number']
         ))
     return output
 
@@ -251,6 +257,7 @@ def retive_sprint_result(data:RaceResultIn):
             driver_number=race_data['driver_number'],
             gap=race_data['gap'],
             interval=race_data['interval'],
-            laps=race_data['laps']
+            laps=race_data['laps'],
+            position_number=race_data['position_number']
         ))
     return output
