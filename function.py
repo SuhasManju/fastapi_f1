@@ -2,7 +2,7 @@ import base64
 import mimetypes
 import os
 from datetime import datetime
-from model import *
+from model1 import *
 
 def convert_img_base64(file_name:str):
     if not os.path.exists(file_name):
@@ -22,7 +22,7 @@ def convert_img_base64(file_name:str):
 def create_datetime(date_str, time_str):
     datetime_str = f"{date_str} {time_str}"
     date_format='%Y-%m-%d'
-    time_format='%H:%M:%S'
+    time_format='%H:%M'
     datetime_format = f"{date_format} {time_format}"
     
     try:
@@ -35,6 +35,6 @@ def retrive_name(first_name,last_name):
         first_name+=" "+last_name
     return first_name
 
-def retrive_status(db,statusId):
-    return db.query(Status.status).filter(Status.statusId==statusId).first()[0]
+# def retrive_status(db,statusId):
+#     return db.query(Status.status).filter(Status.statusId==statusId).first()[0]
 

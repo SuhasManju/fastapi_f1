@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional,List
 
 class RaceOut(BaseModel):
     round:int
@@ -18,7 +18,7 @@ class RaceDetailsOut(BaseModel):
     sprint:bool
     sprint_quali_timings:Optional[str]=None
     sprint_race_timings:Optional[str]=None
-    circuit_image:str
+#    circuit_image:str
 
 class RaceResultIn(BaseModel):
     year:int
@@ -26,19 +26,33 @@ class RaceResultIn(BaseModel):
 
 class RaceResultOut(BaseModel):
     driver_name:str
-    driver_short_code:str
+    driver_id:str
     constructor_name:str
-    constructor_short_code:str
+    constructor_id:str
     driver_number:int
-    points:int
-    time:Optional[str]=None
+    points:Optional[int]=None
+    gap:Optional[str]=None
+    interval:Optional[str]=None
+    retired:Optional[str]=None
 
 class QualiResultOut(BaseModel):
     driver_name:str
-    driver_short_code:str
+    driver_id:str
     constructor_name:str
-    constructor_short_code:str
+    constructor_id:str
     driver_number:int
     q1:Optional[str]=None
     q2:Optional[str]=None
     q3:Optional[str]=None
+
+class PracticeResultOut(BaseModel):
+    driver_name:str
+    driver_id:str
+    constructor_name:str
+    constructor_id:str
+    driver_number:int
+    time:Optional[str]=None
+    gap:Optional[str]=None
+    interval:Optional[str]=None
+    retired:Optional[str]=None
+    laps:int
