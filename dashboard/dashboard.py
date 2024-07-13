@@ -74,6 +74,7 @@ def retrive_detailed_round(year:int,round:int):
     
 @dashbboard.post('/round/race_result',response_model=List[RaceResultOut])
 def retrive_round_result(data:RaceResultIn):
+    retire_racers=[]
     db=sessionLocal()    
     result=db.query(Race).filter(Race.round==data.round,Race.year==data.year).first()
     race_result=db.query(t_race_result).filter(t_race_result.c.race_id==result.id).order_by(t_race_result.c.position_number).all()
@@ -85,18 +86,33 @@ def retrive_round_result(data:RaceResultIn):
         race_data=dict(zip(columns,r))
         driver_result=db.query(Driver).filter(Driver.id==race_data['driver_id']).first()
         constructor_result=db.query(Constructor).filter(Constructor.id==race_data['constructor_id']).first()
-        output.append(RaceResultOut(
-            driver_name=driver_result.name,
-            driver_id=race_data['driver_id'],
-            constructor_name=constructor_result.name,
-            constructor_id=race_data['constructor_id'],
-            driver_number=race_data['driver_number'],
-            points=race_data['points'],
-            gap=race_data['gap'],
-            interval=race_data['interval'],
-            retired=race_data['reason_retired'],
-            position_number=race_data['position_number']
+        if race_data['position_number']:
+            output.append(RaceResultOut(
+                driver_name=driver_result.name,
+                driver_id=race_data['driver_id'],
+                constructor_name=constructor_result.name,
+                constructor_id=race_data['constructor_id'],
+                driver_number=race_data['driver_number'],
+                points=race_data['points'],
+                gap=race_data['gap'],
+                interval=race_data['interval'],
+                retired=race_data['reason_retired'],
+                position_number=race_data['position_number']
         ))
+        else:
+            retire_racers.append(RaceResultOut(
+                driver_name=driver_result.name,
+                driver_id=race_data['driver_id'],
+                constructor_name=constructor_result.name,
+                constructor_id=race_data['constructor_id'],
+                driver_number=race_data['driver_number'],
+                points=race_data['points'],
+                gap=race_data['gap'],
+                interval=race_data['interval'],
+                retired=race_data['reason_retired'],
+                position_number=race_data['position_number']
+        ))
+    output.extend(retire_racers)
     return output
 
 @dashbboard.post('/round/sprint_result')
