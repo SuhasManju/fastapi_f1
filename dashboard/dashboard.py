@@ -16,6 +16,8 @@ def retrive_year():
 @dashbboard.get("/driver_standing")
 def retrive_driver_standing(year:str):
     db=sessionLocal()
+    result=db.query(SeasonDriverStanding).filter(SeasonDriverStanding.year==year).order_by(SeasonDriverStanding.position_number).all()
+    return result
 
 
 @dashbboard.get('/round')
