@@ -16,8 +16,34 @@ def retrive_year():
 @dashbboard.get("/driver_standing")
 def retrive_driver_standing(year:str):
     db=sessionLocal()
-    result=db.query(SeasonDriverStanding).filter(SeasonDriverStanding.year==year).order_by(SeasonDriverStanding.position_number).all()
-    return result
+    output=[]
+    result=db.query(Driver.name,Driver.permanent_number,Driver.id,Constructor.name,SeasonDriverStanding.position_number,SeasonDriverStanding.points).filter(SeasonDriverStanding.year==year,SeasonDriverStanding.driver_id==SeasonEntrantDriver.driver_id,
+    SeasonDriverStanding.year==SeasonEntrantDriver.year,SeasonEntrantDriver.test_driver==0,Constructor.id==SeasonEntrantDriver.constructor_id,SeasonDriverStanding.driver_id==Driver.id).order_by(SeasonDriverStanding.position_number).all()
+    for driver_name,number,driver_id,constructor_name,position_number,points, in result:
+        output.append(DriverStandingOut(
+            driver_name=driver_name,
+            number=number,
+            driver_id=driver_id,
+            constructor_name=constructor_name,
+            points=points,
+            position=position_number
+        ))
+    return output
+
+@dashbboard.get("/constructor_standing")
+def retrive_constructor_standing(year:str):
+    db=sessionLocal()
+    result=db.query(SeasonConstructorStanding.year,SeasonConstructorStanding.position_number,SeasonConstructorStanding.points,Constructor.full_name,Constructor.id).filter(SeasonConstructorStanding.constructor_id==Constructor.id,SeasonConstructorStanding.year==year).all()
+    output=[]
+    for year,position_number,points,name,constructor_id in result:
+        output.append(ConstructorStandingOut(
+            year=year,
+        constructor_name=name,
+        constructor_id=constructor_id,
+        points=points,
+        position=position_number
+        ))
+    return output
 
 
 @dashbboard.get('/round')

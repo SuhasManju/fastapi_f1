@@ -8,6 +8,21 @@ class RaceOut(BaseModel):
     end_date:str
     location:str
 
+class DriverStandingOut(BaseModel):
+    driver_name:str
+    number:Optional[int]=None
+    driver_id:str
+    constructor_name:str
+    points:Optional[int]=0
+    position:Optional[int]=0
+
+class ConstructorStandingOut(BaseModel):
+    year:int
+    constructor_name:str
+    constructor_id:str
+    points:int
+    position:int
+
 class RaceDetailsOut(BaseModel):
     name:str
     fp1_timings:str
