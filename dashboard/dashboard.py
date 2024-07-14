@@ -71,7 +71,7 @@ def retrive_detailed_round(year:int,round:int):
         sprint=sprint,
         sprint_quali_timings=str(sprintquali) if sprintquali else None,
         sprint_race_timings=str(sprinttimings) if sprinttimings else None,
-        #circuit_image=convert_img_base64(f"circuit_images/{circuit_result.circuitId}.svg.png")
+        circuit_image=convert_img_base64(f"circuit_images/{year}/{round}.svg")
     )
     
 @dashbboard.post('/round/race_result',response_model=List[RaceResultOut])

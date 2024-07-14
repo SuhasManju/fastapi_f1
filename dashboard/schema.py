@@ -18,7 +18,7 @@ class RaceDetailsOut(BaseModel):
     sprint:bool
     sprint_quali_timings:Optional[str]=None
     sprint_race_timings:Optional[str]=None
-#    circuit_image:str
+    circuit_image:Optional[str]=None
 
 class RaceResultIn(BaseModel):
     year:int
