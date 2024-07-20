@@ -65,7 +65,6 @@ def retrive_round(year:str):
 def retrive_detailed_round(year:int,round:int):
     db=sessionLocal()
     result=db.query(Race).filter(Race.round==round,Race.year==year).first()
-    circuit_result=db.query(Circuit).filter(Circuit.id==result.circuit_id).first()
     fp1timings=create_datetime(result.free_practice_1_date,result.free_practice_1_time)
     racetimings=create_datetime(result.date,result.time)
     fp2timings=None
