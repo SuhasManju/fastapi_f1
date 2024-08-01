@@ -39,6 +39,17 @@ class RaceResultIn(BaseModel):
     year:int
     round:int
 
+class DriverStandingDetailed(BaseModel):
+    driver_id:str
+    driver_number:int
+    round:List[int]
+    points:List[int]
+
+class ConstructorStandingDetailed(BaseModel):
+    constructor_name:str
+    round:List[int]
+    points:List[int]
+
 class RaceResultOut(BaseModel):
     driver_name:str
     driver_id:str

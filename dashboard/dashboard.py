@@ -1,9 +1,10 @@
 from fastapi import APIRouter,HTTPException
-from database import sessionLocal
+from database import sessionLocal,func
 from model1 import *
 from .schema import *
 from function import *
-
+import pandas as pd
+import numpy as np
 
 dashbboard=APIRouter(tags=['Dashboard'])
 
@@ -30,6 +31,33 @@ def retrive_driver_standing(year:str):
         ))
     return output
 
+@dashbboard.get("/driver_standing/detailed")
+def retrive_driver_standing_detailed(year:str):
+    db=sessionLocal()
+    output=[]
+    result=db.query(t_race_result.c.driver_id,t_race_result.c.driver_number,t_race_result.c.round,t_race_result.c.points).filter(t_race_result.c.year==year).all()
+    df=pd.DataFrame(result,columns=['driver_id',"driver_number","round","points"])
+    df.replace(np.NAN,0,inplace=True)
+    df['points']=df['points'].astype("int")
+    sprint_result=db.query(t_sprint_race_result.c.driver_id,t_sprint_race_result.c.driver_number,t_sprint_race_result.c.round,t_sprint_race_result.c.points).filter(t_sprint_race_result.c.year==year).all()
+    sprint_df=pd.DataFrame(sprint_result,columns=['driver_id',"driver_number","round","points"])
+    sprint_df.replace(np.NAN,0,inplace=True)
+    sprint_df['points']=sprint_df['points'].astype("int")
+    df=pd.concat([df,sprint_df],ignore_index=True)
+    df=df.groupby(['driver_id',"driver_number","round"],as_index=False)['points'].sum()
+    df['points']=df.groupby(['driver_id',"round"])['points'].transform('sum')
+    df.sort_values("round",inplace=True)
+    df['cumulative_points']=df.groupby("driver_id")['points'].cumsum()
+    for driver_id in df['driver_id'].unique():
+        driver_df=df.loc[df['driver_id']==driver_id,:]
+        output.append(DriverStandingDetailed(
+            driver_id=driver_id,
+            driver_number=driver_df['driver_number'].unique()[0],
+            round=list(driver_df['round'].values),
+            points=list(driver_df['cumulative_points'].values)
+        ))
+    return output
+
 @dashbboard.get("/constructor_standing")
 def retrive_constructor_standing(year:str):
     db=sessionLocal()
@@ -45,6 +73,32 @@ def retrive_constructor_standing(year:str):
         ))
     return output
 
+@dashbboard.get("/constructor_standing/detailed")
+def retrive_constructor_standing_detailed(year:str):
+    db=sessionLocal()
+    output=[]
+    result=db.query(t_race_result.c.constructor_id,t_race_result.c.round,t_race_result.c.points).filter(t_race_result.c.year==year).all()
+    df=pd.DataFrame(result,columns=['driver_id',"round","points"])
+    df.replace(np.NAN,0,inplace=True)
+    df['points']=df['points'].astype("int")
+    sprint_result=db.query(t_sprint_race_result.c.constructor_id,t_sprint_race_result.c.round,t_sprint_race_result.c.points).filter(t_sprint_race_result.c.year==year).all()
+    sprint_df=pd.DataFrame(sprint_result,columns=['driver_id',"round","points"])
+    sprint_df.replace(np.NAN,0,inplace=True)
+    sprint_df['points']=sprint_df['points'].astype("int")
+    df=pd.concat([df,sprint_df],ignore_index=True)
+    df=df.groupby(['driver_id',"round"],as_index=False)['points'].sum()
+    df['points']=df.groupby(['driver_id',"round"])['points'].transform('sum')
+    df.sort_values("round",inplace=True)
+    df['cumulative_points']=df.groupby("driver_id")['points'].cumsum()
+    for driver_id in df['driver_id'].unique():
+        driver_df=df.loc[df['driver_id']==driver_id,:]
+        constructor_result=db.query(Constructor).filter(Constructor.id==driver_id).first()
+        output.append(ConstructorStandingDetailed(
+            constructor_name=constructor_result.name,
+            round=list(driver_df['round'].values),
+            points=list(driver_df['cumulative_points'].values)
+        ))
+    return output
 
 @dashbboard.get('/round')
 def retrive_round(year:str):
