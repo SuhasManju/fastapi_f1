@@ -5,9 +5,9 @@ API's to access data of all the race held by F1
 To Run the server locally use command:
     uvicorn main:app --reload --reload-exclude *.log
     
-    To try out API's and read about the documentation:
-        http://127.0.0.1:8000/docs#/
-        Open's the swagger UI
+To try out API's and read about the documentation:
+    http://127.0.0.1:8000/docs#/
+Open's the swagger UI
 
 Attribution:
     ERGAST: http://ergast.com/mrd/
