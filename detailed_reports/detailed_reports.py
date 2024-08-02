@@ -74,17 +74,9 @@ def retrive_driver_info(data:RaceResultIn):
         driver_data=fastf1._api.driver_info(race.api_path)
         return list(driver_data.values())
     
-@detailed_api.get("/round/race_result/driver_colour")
+@detailed_api.get("/colours")
 def retrive_driver_colour():
-     return fastf1.plotting.DRIVER_COLORS
-
-@detailed_api.get("/round/race_result/team_colour")
-def retrive_team_colour():
-    return fastf1.plotting.TEAM_COLORS
-
-@detailed_api.get("/round/race_result/tyre_colour")
-def retrive_tyre_colour():
-    return fastf1.plotting.COMPOUND_COLORS
+    return {"driver_colour":fastf1.plotting.DRIVER_COLORS,"team_colours":fastf1.plotting.TEAM_COLORS,"compound_colours":fastf1.plotting.COMPOUND_COLORS}
 
 @detailed_api.post("/round/race_result/laptimes")
 def retrive_pipstops(data:RaceResultIn):
