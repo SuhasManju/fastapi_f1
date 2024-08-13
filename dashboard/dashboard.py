@@ -8,12 +8,6 @@ import numpy as np
 
 dashbboard=APIRouter(tags=['Dashboard'])
 
-@dashbboard.get('/season')
-def retrive_year():
-    db=sessionLocal()
-    result=db.query(Season).order_by(Season.year).all()
-    return [r.year for r in result]
-
 @dashbboard.get("/driver_standing")
 def retrive_driver_standing(year:str):
     db=sessionLocal()
