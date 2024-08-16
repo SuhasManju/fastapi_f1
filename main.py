@@ -5,8 +5,14 @@ from quali_reports.quali_reports import quali_reports
 from fastapi.middleware.cors import CORSMiddleware
 import logging
 import time
+from dotenv import load_dotenv
+import os
 
-app=FastAPI(debug=True)
+load_dotenv()
+
+debug=bool(os.getenv("debug"))
+
+app=FastAPI(debug=debug)
 app_router=APIRouter()
 
 app_router.include_router(dashbboard)
