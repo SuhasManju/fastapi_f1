@@ -5,3 +5,5 @@ test.py
 *.ipynb
 *.json
 *.log
+*.service
+.env
