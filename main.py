@@ -3,7 +3,6 @@ from dashboard.dashboard import dashbboard
 from detailed_reports.detailed_reports import detailed_api
 from quali_reports.quali_reports import quali_reports
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse
 import logging
 import time
 from dotenv import load_dotenv
@@ -21,10 +20,6 @@ app_router.include_router(detailed_api)
 app_router.include_router(quali_reports)
 
 app.include_router(app_router)
-
-@app.get('/')
-def redirect_to_docs():
-    return RedirectResponse("http://127.0.0.1:8000/docs")
 
 logging.basicConfig(
     level=logging.INFO,
