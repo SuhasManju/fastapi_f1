@@ -4,7 +4,7 @@ from model1 import Base
 
 
 
-engine=create_engine("mysql+pymysql://root:root@localhost/formula1_new")
+engine=create_engine("mysql+pymysql://root:root@127.0.0.1/formula1_new")
 
 sessionLocal=sessionmaker(bind=engine)
 
