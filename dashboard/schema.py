@@ -13,14 +13,14 @@ class DriverStandingOut(BaseModel):
     number:Optional[int]=None
     driver_id:str
     constructor_name:str
-    points:Optional[int]=0
+    points:Optional[float]=0
     position:Optional[int]=0
 
 class ConstructorStandingOut(BaseModel):
     year:int
     constructor_name:str
     constructor_id:str
-    points:int
+    points:float
     position:int
 
 class RaceDetailsOut(BaseModel):
@@ -43,12 +43,12 @@ class DriverStandingDetailed(BaseModel):
     driver_id:str
     driver_number:int
     round:List[int]
-    points:List[int]
+    points:List[float]
 
 class ConstructorStandingDetailed(BaseModel):
     constructor_name:str
     round:List[int]
-    points:List[int]
+    points:List[float]
 
 class RaceResultOut(BaseModel):
     driver_name:str
@@ -56,7 +56,7 @@ class RaceResultOut(BaseModel):
     constructor_name:str
     constructor_id:str
     driver_number:int
-    points:Optional[int]=None
+    points:Optional[float]=None
     position_number:Optional[int]=None
     gap:Optional[str]=None
     interval:Optional[str]=None
