@@ -5,15 +5,18 @@ from .schema import *
 from function import *
 import pandas as pd
 import numpy as np
+from .previous_rounds import retrive_previous_round_timings,retrive_previous_round_detailed_timings
 
 dashbboard=APIRouter(tags=['Dashboard'])
 
 @dashbboard.get("/driver_standing")
-def retrive_driver_standing(year:str):
+def retrive_driver_standing(year:int):
     db=sessionLocal()
     output=[]
     result=db.query(Driver.name,Driver.permanent_number,Driver.id,Constructor.name,SeasonDriverStanding.position_number,SeasonDriverStanding.points).filter(SeasonDriverStanding.year==year,SeasonDriverStanding.driver_id==SeasonEntrantDriver.driver_id,
     SeasonDriverStanding.year==SeasonEntrantDriver.year,SeasonEntrantDriver.test_driver==0,Constructor.id==SeasonEntrantDriver.constructor_id,SeasonDriverStanding.driver_id==Driver.id).order_by(SeasonDriverStanding.position_number).all()
+    if not result:
+        raise HTTPException(status_code=404,detail=f"Driver Standings not found for the year - {year}")
     for driver_name,number,driver_id,constructor_name,position_number,points, in result:
         output.append(DriverStandingOut(
             driver_name=driver_name,
@@ -26,10 +29,12 @@ def retrive_driver_standing(year:str):
     return output
 
 @dashbboard.get("/driver_standing/detailed")
-def retrive_driver_standing_detailed(year:str):
+def retrive_driver_standing_detailed(year:int):
     db=sessionLocal()
     output=[]
     result=db.query(t_race_result.c.driver_id,t_race_result.c.driver_number,t_race_result.c.round,t_race_result.c.points).filter(t_race_result.c.year==year).all()
+    if not result:
+        raise HTTPException(status_code=404,detail=f"Driver Standings not found for the year - {year}")
     df=pd.DataFrame(result,columns=['driver_id',"driver_number","round","points"])
     df.replace(np.NAN,0,inplace=True)
     df['points']=df['points'].astype("int")
@@ -53,10 +58,12 @@ def retrive_driver_standing_detailed(year:str):
     return output
 
 @dashbboard.get("/constructor_standing")
-def retrive_constructor_standing(year:str):
+def retrive_constructor_standing(year:int):
     db=sessionLocal()
     result=db.query(SeasonConstructorStanding.year,SeasonConstructorStanding.position_number,SeasonConstructorStanding.points,Constructor.full_name,Constructor.id).filter(SeasonConstructorStanding.constructor_id==Constructor.id,SeasonConstructorStanding.year==year).all()
     output=[]
+    if not result:
+        raise HTTPException(status_code=404,detail=f"Constructor Standings not found for the year - {year}")
     for year,position_number,points,name,constructor_id in result:
         output.append(ConstructorStandingOut(
             year=year,
@@ -68,10 +75,12 @@ def retrive_constructor_standing(year:str):
     return output
 
 @dashbboard.get("/constructor_standing/detailed")
-def retrive_constructor_standing_detailed(year:str):
+def retrive_constructor_standing_detailed(year:int):
     db=sessionLocal()
     output=[]
     result=db.query(t_race_result.c.constructor_id,t_race_result.c.round,t_race_result.c.points).filter(t_race_result.c.year==year).all()
+    if not result:
+        raise HTTPException(status_code=404,detail=f"Constructor Standings not found for the year - {year}")
     df=pd.DataFrame(result,columns=['driver_id',"round","points"])
     df.replace(np.NAN,0,inplace=True)
     df['points']=df['points'].astype("int")
@@ -95,64 +104,77 @@ def retrive_constructor_standing_detailed(year:str):
     return output
 
 @dashbboard.get('/round')
-def retrive_round(year:str):
+def retrive_round(year:int):
     db=sessionLocal()
     output=[]
-    result=db.query(Race.round,Race.official_name,Race.free_practice_1_date,Race.date,Circuit.name,Circuit.place_name,Country.name).join(Race,Race.circuit_id==Circuit.id).join(Country,Circuit.country_id==Country.id).filter(Race.year==year).order_by(Race.round).all()
-    for round,name,start_date,end_date,circuit_name,location,country in result:
-        output.append(RaceOut(
-            round=round,
-            name=name,
-            start_date=str(start_date),
-            end_date=str(end_date),
-            location=", ".join([circuit_name,location,country])
-        ))
-    return output
+    if year>=2024:
+        result=db.query(Race.round,Race.official_name,Race.free_practice_1_date,Race.date,Circuit.name,Circuit.place_name,Country.name,Circuit.latitude,Circuit.longitude).join(Race,Race.circuit_id==Circuit.id).join(Country,Circuit.country_id==Country.id).filter(Race.year==year).order_by(Race.round).all()
+        if not result:
+            raise HTTPException(status_code=404,detail=f"Races not found for {year}")
+        for round,name,start_date,end_date,circuit_name,location,country,lat,lng in result:
+            output.append(RaceOut(
+                round=round,
+                name=name,
+                start_date=str(start_date),
+                end_date=str(end_date),
+                location=", ".join([circuit_name,location,country]),
+                co_ordinates=[lat,lng]
+            ))
+        return output
+    else:
+        return retrive_previous_round_timings(year)
 
 @dashbboard.get('/round/detailed')
 def retrive_detailed_round(year:int,round:int):
     db=sessionLocal()
-    result=db.query(Race).filter(Race.round==round,Race.year==year).first()
-    fp1timings=create_datetime(result.free_practice_1_date,result.free_practice_1_time)
-    racetimings=create_datetime(result.date,result.time)
-    fp2timings=None
-    fp3timings=None
-    sprintquali=None
-    qualitimings=None
-    sprinttimings=None
-    sprint=True if result.sprint_race_date else False
-    if sprint:
-        sprinttimings=create_datetime(result.sprint_race_date,result.sprint_race_time)
-        if year>=2024:
-            qualitimings=create_datetime(result.qualifying_date,result.qualifying_time)
-            sprintquali=create_datetime(result.sprint_qualifying_date,result.sprint_qualifying_time)
+    if year>=2024:
+        result=db.query(Race).filter(Race.round==round,Race.year==year).first()
+        if not result:
+            raise HTTPException(status_code=404,detail=f"Race Details not found year - {year} and round - {round}")
+        fp1timings=create_datetime(result.free_practice_1_date,result.free_practice_1_time)
+        racetimings=create_datetime(result.date,result.time)
+        fp2timings=None
+        fp3timings=None
+        sprintquali=None
+        qualitimings=None
+        sprinttimings=None
+        sprint=True if result.sprint_race_date else False
+        if sprint:
+            sprinttimings=create_datetime(result.sprint_race_date,result.sprint_race_time)
+            if year>=2024:
+                qualitimings=create_datetime(result.qualifying_date,result.qualifying_time)
+                sprintquali=create_datetime(result.sprint_qualifying_date,result.sprint_qualifying_time)
+            else:
+                fp2timings=create_datetime(result.free_practice_2_date,result.free_practice_2_time)
+                qualitimings=create_datetime(result.qualifying_date,result.qualifying_time)
         else:
             fp2timings=create_datetime(result.free_practice_2_date,result.free_practice_2_time)
+            fp3timings=create_datetime(result.free_practice_3_date,result.free_practice_3_time)
             qualitimings=create_datetime(result.qualifying_date,result.qualifying_time)
+        
+        return RaceDetailsOut(
+            name=result.official_name,
+            fp1_timings=str(fp1timings),
+            fp2_timings=str(fp2timings) if fp2timings else None,
+            fp3_timings=str(fp3timings) if fp3timings else None,
+            quali_timings=str(qualitimings) if qualitimings else None,
+            race_timings=str(racetimings),
+            sprint=sprint,
+            sprint_quali_timings=str(sprintquali) if sprintquali else None,
+            sprint_race_timings=str(sprinttimings) if sprinttimings else None,
+            circuit_image=convert_img_base64(f"circuit_images/{year}/{round}.svg")
+        )
     else:
-        fp2timings=create_datetime(result.free_practice_2_date,result.free_practice_2_time)
-        fp3timings=create_datetime(result.free_practice_3_date,result.free_practice_3_time)
-        qualitimings=create_datetime(result.qualifying_date,result.qualifying_time)
-    
-    return RaceDetailsOut(
-        name=result.official_name,
-        fp1_timings=str(fp1timings),
-        fp2_timings=str(fp2timings) if fp2timings else None,
-        fp3_timings=str(fp3timings) if fp3timings else None,
-        quali_timings=str(qualitimings) if qualitimings else None,
-        race_timings=str(racetimings),
-        sprint=sprint,
-        sprint_quali_timings=str(sprintquali) if sprintquali else None,
-        sprint_race_timings=str(sprinttimings) if sprinttimings else None,
-        circuit_image=convert_img_base64(f"circuit_images/{year}/{round}.svg")
-    )
+        return retrive_previous_round_detailed_timings(year,round)
+
     
 @dashbboard.post('/round/race_result',response_model=List[RaceResultOut])
 def retrive_round_result(data:RaceResultIn):
     retire_racers=[]
-    db=sessionLocal()    
-    result=db.query(Race).filter(Race.round==data.round,Race.year==data.year).first()
-    race_result=db.query(t_race_result).filter(t_race_result.c.race_id==result.id).order_by(t_race_result.c.position_number).all()
+    db=sessionLocal()
+    race_result=db.query(t_race_result).filter(t_race_result.c.round==data.round,t_race_result.c.year==data.year).order_by(t_race_result.c.position_number).all()
+    if not race_result:
+        raise HTTPException(status_code=404,detail="Race results not found")
     output=[]
     columns=t_race_result.c.keys()
     if not race_result:
@@ -198,6 +220,8 @@ def retive_sprint_result(data:RaceResultIn):
     if not result.sprint_race_date:
         raise HTTPException(status_code=400,detail="This Race is not a sprint race")
     race_result=db.query(t_sprint_race_result).filter(t_sprint_race_result.c.race_id==result.id).order_by(t_sprint_race_result.c.position_number).all()
+    if not race_result:
+        raise HTTPException(status_code=404,detail="Sprint results not found")
     columns=t_sprint_race_result.c.keys()
     if not race_result:
         raise HTTPException(status_code=404,detail="Race has not happened yet")
@@ -227,7 +251,7 @@ def retrive_quali_result(data:RaceResultIn):
     result=db.query(Race).filter(Race.round==data.round,Race.year==data.year).first()
     quali_result=db.query(t_qualifying_result).filter(t_qualifying_result.c.race_id==result.id).order_by(t_qualifying_result.c.position_number).all()
     if not quali_result:
-        raise HTTPException(status_code=404,detail="Qualifying result not found")
+        raise HTTPException(status_code=404,detail="Sprint Qualifying result not found")
     columns=t_qualifying_result.c.keys()
     for r in quali_result:
         race_data=dict(zip(columns,r))

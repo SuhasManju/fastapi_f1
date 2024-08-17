@@ -20,15 +20,25 @@ def convert_img_base64(file_name:str):
     return padded_base64
 
 def create_datetime(date_str, time_str):
-    datetime_str = f"{date_str} {time_str}"
     date_format='%Y-%m-%d'
-    time_format='%H:%M'
-    datetime_format = f"{date_format} {time_format}"
-    
-    try:
-        return datetime.strptime(datetime_str, datetime_format)
-    except ValueError as e:
-        raise ValueError(f"Error parsing date and time: {e}")
+    if time_str:
+        datetime_str = f"{date_str} {time_str}"
+        if len(str(time_str))==8:
+            time_format='%H:%M:%S'
+        else:
+            time_format='%H:%M'
+        datetime_format = f"{date_format} {time_format}"
+        
+        try:
+            return datetime.strptime(datetime_str, datetime_format)
+        except ValueError as e:
+            raise ValueError(f"Error parsing date and time: {e}")
+    else:
+        datetime_str=f"{date_str}"
+        try:
+            return datetime.strptime(datetime_str,date_format)
+        except ValueError as e:
+            raise ValueError(f"Error parsing date and time: {e}")
     
 def retrive_name(first_name,last_name):
     if last_name:

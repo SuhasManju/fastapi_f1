@@ -4,9 +4,10 @@ from typing import Optional,List
 class RaceOut(BaseModel):
     round:int
     name:str
-    start_date:str
+    start_date:Optional[str]=None
     end_date:str
     location:str
+    co_ordinates:Optional[List[float]]=None
 
 class DriverStandingOut(BaseModel):
     driver_name:str
@@ -25,7 +26,7 @@ class ConstructorStandingOut(BaseModel):
 
 class RaceDetailsOut(BaseModel):
     name:str
-    fp1_timings:str
+    fp1_timings:Optional[str]=None
     fp2_timings:Optional[str]=None
     fp3_timings:Optional[str]=None
     quali_timings:Optional[str]=None

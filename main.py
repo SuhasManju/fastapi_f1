@@ -10,7 +10,7 @@ import os
 
 load_dotenv()
 
-debug=bool(os.getenv("debug"))
+debug=int(os.getenv("debug"))
 
 app=FastAPI(debug=debug)
 app_router=APIRouter()
