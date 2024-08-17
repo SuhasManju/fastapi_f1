@@ -60,3 +60,5 @@ def retrive_circuit_image(year,round_name):
     # plt.show()
     plt.savefig(f'circuit_images/{year}/{round_name}.svg')
     plt.close()
+
+retrive_circuit_image(2024,14)
