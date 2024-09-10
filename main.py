@@ -2,6 +2,7 @@ from fastapi import FastAPI,APIRouter,Request
 from dashboard.dashboard import dashbboard
 from detailed_reports.detailed_reports import detailed_api
 from quali_reports.quali_reports import quali_reports
+from reports.reports import report_api
 from fastapi.middleware.cors import CORSMiddleware
 import logging
 import time
@@ -18,6 +19,7 @@ app_router=APIRouter()
 app_router.include_router(dashbboard)
 app_router.include_router(detailed_api)
 app_router.include_router(quali_reports)
+app_router.include_router(report_api)
 
 app.include_router(app_router)
 
