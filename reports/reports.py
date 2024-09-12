@@ -103,8 +103,8 @@ def retrive_team_mate_comparision(data:TeamMateIn):
 
     return list(output_dict.values())
         
-@report_api.post("/distance_traveled")
-def retrive_distance_travelled(data:TeamMateIn):
-    db=sessionLocal()
-    result=db.query(Race.round,Circuit.latitude,Circuit.longitude).filter(Race.circuit_id==Circuit.id,Race.year==data.year).order_by(Race.round).all()
-    print(result)
+# @report_api.post("/distance_traveled")
+# def retrive_distance_travelled(data:TeamMateIn):
+#     db=sessionLocal()
+#     result=db.query(Race.round,Circuit.latitude,Circuit.longitude).filter(Race.circuit_id==Circuit.id,Race.year==data.year).order_by(Race.round).all()
+#     print(result)
